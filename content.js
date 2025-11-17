@@ -119,12 +119,12 @@ function detectPageInfo() {
   } else if (pathname.startsWith('/hashtag/')) {
     pageType = 'hashtag';
     isValidPage = botState.settings.enabledPages.hashtag;
+  } else if (pathname.startsWith('/i/communities/') || pathname.match(/^\/[a-zA-Z0-9_]+\/communities/)) {
+    pageType = 'community';
+    isValidPage = botState.settings.enabledPages.community;
   } else if (pathname.match(/^\/[a-zA-Z0-9_]+$/)) {
     pageType = 'profile';
     isValidPage = botState.settings.enabledPages.profile;
-  } else if (pathname.startsWith('/i/communities/')) {
-    pageType = 'community';
-    isValidPage = botState.settings.enabledPages.community;
   } else if (pathname.startsWith('/i/lists/') || pathname.startsWith('/lists/')) {
     pageType = 'lists';
     isValidPage = botState.settings.enabledPages.lists;
