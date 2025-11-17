@@ -599,7 +599,7 @@
           <option value="frequent">Frequent - express emotions</option>
         </select>
       </div>
-      
+
       <div>
         <label>Hashtag Policy:</label>
         <select id="hashtag-policy" class="input" style="margin-top: 5px;">
@@ -607,6 +607,164 @@
           <option value="rare">Rare - only if necessary</option>
           <option value="topic-based">Topic-based - for trends only</option>
         </select>
+      </div>
+    </div>
+
+    <div class="control-group">
+      <h3>📖 Reading Time Simulation</h3>
+      <div style="margin-bottom: 15px;">
+        <label class="checkbox-label">
+          <input type="checkbox" id="enable-reading-time" checked>
+          Enable Reading Time Simulation
+        </label>
+        <div class="help-text" style="font-size: 11px; color: #888; margin-top: 5px;">
+          Simulates realistic reading time before commenting
+        </div>
+      </div>
+
+      <div style="margin-bottom: 15px;">
+        <label>Min Reading Time: <span id="reading-min-value">3</span>s</label>
+        <input type="range" id="reading-min-slider" class="slider" min="1" max="10" value="3" step="1">
+      </div>
+
+      <div>
+        <label>Max Reading Time: <span id="reading-max-value">10</span>s</label>
+        <input type="range" id="reading-max-slider" class="slider" min="5" max="30" value="10" step="1">
+      </div>
+    </div>
+
+    <div class="control-group">
+      <h3>🎲 Selective Engagement</h3>
+      <div style="margin-bottom: 15px;">
+        <label>Engagement Probability: <span id="engagement-prob-value">15</span>%</label>
+        <input type="range" id="engagement-prob-slider" class="slider" min="5" max="50" value="15" step="5">
+        <div class="help-text" style="font-size: 11px; color: #888; margin-top: 5px;">
+          % chance to comment on a valid tweet (lower = more selective)
+        </div>
+      </div>
+
+      <div style="margin-bottom: 15px;">
+        <label class="checkbox-label">
+          <input type="checkbox" id="skip-tweets-checkbox" checked>
+          Skip Tweets Between Comments
+        </label>
+      </div>
+
+      <div style="margin-bottom: 15px;">
+        <label>Min Tweets to Skip: <span id="min-skip-value">2</span></label>
+        <input type="range" id="min-skip-slider" class="slider" min="1" max="5" value="2" step="1">
+      </div>
+
+      <div>
+        <label>Max Tweets to Skip: <span id="max-skip-value">6</span></label>
+        <input type="range" id="max-skip-slider" class="slider" min="3" max="15" value="6" step="1">
+      </div>
+    </div>
+
+    <div class="control-group">
+      <h3>☕ Random Breaks</h3>
+      <div style="margin-bottom: 15px;">
+        <label class="checkbox-label">
+          <input type="checkbox" id="enable-breaks-checkbox" checked>
+          Enable Random Breaks
+        </label>
+        <div class="help-text" style="font-size: 11px; color: #888; margin-top: 5px;">
+          Take periodic breaks like a real human
+        </div>
+      </div>
+
+      <div style="margin-bottom: 15px;">
+        <label>Break Interval (min): <span id="break-interval-min-value">20</span>-<span id="break-interval-max-value">45</span> min</label>
+        <div style="display: flex; gap: 10px;">
+          <input type="range" id="break-interval-min-slider" class="slider" min="10" max="30" value="20" step="5" style="flex: 1;">
+          <input type="range" id="break-interval-max-slider" class="slider" min="30" max="90" value="45" step="5" style="flex: 1;">
+        </div>
+      </div>
+
+      <div>
+        <label>Break Duration (sec): <span id="break-duration-min-value">60</span>-<span id="break-duration-max-value">180</span>s</label>
+        <div style="display: flex; gap: 10px;">
+          <input type="range" id="break-duration-min-slider" class="slider" min="30" max="120" value="60" step="10" style="flex: 1;">
+          <input type="range" id="break-duration-max-slider" class="slider" min="120" max="300" value="180" step="30" style="flex: 1;">
+        </div>
+      </div>
+    </div>
+
+    <div class="control-group">
+      <h3>⌨️ Realistic Typing</h3>
+      <div style="margin-bottom: 15px;">
+        <label class="checkbox-label">
+          <input type="checkbox" id="enable-typing-checkbox" checked>
+          Enable Realistic Typing
+        </label>
+        <div class="help-text" style="font-size: 11px; color: #888; margin-top: 5px;">
+          Variable speed typing with occasional typos
+        </div>
+      </div>
+
+      <div style="margin-bottom: 15px;">
+        <label>Typing Speed: <span id="typing-min-value">40</span>-<span id="typing-max-value">120</span> ms/char</label>
+        <div style="display: flex; gap: 10px;">
+          <input type="range" id="typing-min-slider" class="slider" min="20" max="80" value="40" step="10" style="flex: 1;">
+          <input type="range" id="typing-max-slider" class="slider" min="80" max="200" value="120" step="20" style="flex: 1;">
+        </div>
+      </div>
+
+      <div>
+        <label>Typo Chance: <span id="typo-chance-value">8</span>%</label>
+        <input type="range" id="typo-chance-slider" class="slider" min="0" max="20" value="8" step="2">
+      </div>
+    </div>
+
+    <div class="control-group">
+      <h3>🎭 Session Moods</h3>
+      <div style="margin-bottom: 15px;">
+        <label class="checkbox-label">
+          <input type="checkbox" id="enable-moods-checkbox" checked>
+          Enable Session Moods
+        </label>
+        <div class="help-text" style="font-size: 11px; color: #888; margin-top: 5px;">
+          Bot behavior changes based on mood (active/normal/passive)
+        </div>
+      </div>
+
+      <div>
+        <label>Mood Change Interval: <span id="mood-interval-value">25</span> min</label>
+        <input type="range" id="mood-interval-slider" class="slider" min="10" max="60" value="25" step="5">
+      </div>
+    </div>
+
+    <div class="control-group">
+      <h3>🖼️ Media Detection</h3>
+      <div style="margin-bottom: 15px;">
+        <label class="checkbox-label">
+          <input type="checkbox" id="enable-media-checkbox" checked>
+          Enable Media Detection
+        </label>
+        <div class="help-text" style="font-size: 11px; color: #888; margin-top: 5px;">
+          Pause to "view" images and videos before commenting
+        </div>
+      </div>
+
+      <div style="margin-bottom: 15px;">
+        <label>Min Media View Time: <span id="media-min-value">2</span>s</label>
+        <input type="range" id="media-min-slider" class="slider" min="1" max="5" value="2" step="1">
+      </div>
+
+      <div>
+        <label>Max Media View Time: <span id="media-max-value">5</span>s</label>
+        <input type="range" id="media-max-slider" class="slider" min="3" max="15" value="5" step="1">
+      </div>
+    </div>
+
+    <div class="control-group">
+      <h3>🤔 Comment Abandonment</h3>
+      <div>
+        <label>Abandon Comment Chance: <span id="abandon-chance-value">5</span>%</label>
+        <input type="range" id="abandon-chance-slider" class="slider" min="0" max="20" value="5" step="1">
+        <div class="help-text" style="font-size: 11px; color: #888; margin-top: 5px;">
+          % chance to start typing then change mind (very human!)
+        </div>
       </div>
     </div>
   </div>

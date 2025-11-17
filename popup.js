@@ -103,17 +103,47 @@ function setupEventListeners() {
   
   document.getElementById('emoji-policy').addEventListener('change', updateEmojiPolicy);
   document.getElementById('hashtag-policy').addEventListener('change', updateHashtagPolicy);
-  
+
+  // NEW: Human-like behavior settings
+  document.getElementById('enable-reading-time').addEventListener('change', updateReadingTimeEnabled);
+  document.getElementById('reading-min-slider').addEventListener('input', updateReadingTimeMin);
+  document.getElementById('reading-max-slider').addEventListener('input', updateReadingTimeMax);
+
+  document.getElementById('engagement-prob-slider').addEventListener('input', updateEngagementProb);
+  document.getElementById('skip-tweets-checkbox').addEventListener('change', updateSkipTweets);
+  document.getElementById('min-skip-slider').addEventListener('input', updateMinSkip);
+  document.getElementById('max-skip-slider').addEventListener('input', updateMaxSkip);
+
+  document.getElementById('enable-breaks-checkbox').addEventListener('change', updateBreaksEnabled);
+  document.getElementById('break-interval-min-slider').addEventListener('input', updateBreakIntervalMin);
+  document.getElementById('break-interval-max-slider').addEventListener('input', updateBreakIntervalMax);
+  document.getElementById('break-duration-min-slider').addEventListener('input', updateBreakDurationMin);
+  document.getElementById('break-duration-max-slider').addEventListener('input', updateBreakDurationMax);
+
+  document.getElementById('enable-typing-checkbox').addEventListener('change', updateTypingEnabled);
+  document.getElementById('typing-min-slider').addEventListener('input', updateTypingMin);
+  document.getElementById('typing-max-slider').addEventListener('input', updateTypingMax);
+  document.getElementById('typo-chance-slider').addEventListener('input', updateTypoChance);
+
+  document.getElementById('enable-moods-checkbox').addEventListener('change', updateMoodsEnabled);
+  document.getElementById('mood-interval-slider').addEventListener('input', updateMoodInterval);
+
+  document.getElementById('enable-media-checkbox').addEventListener('change', updateMediaEnabled);
+  document.getElementById('media-min-slider').addEventListener('input', updateMediaMin);
+  document.getElementById('media-max-slider').addEventListener('input', updateMediaMax);
+
+  document.getElementById('abandon-chance-slider').addEventListener('input', updateAbandonChance);
+
   // Page settings
   const pageCheckboxes = [
     'enable-home', 'enable-search', 'enable-hashtag', 'enable-profile',
     'enable-community', 'enable-lists', 'enable-explore'
   ];
-  
+
   pageCheckboxes.forEach(id => {
     document.getElementById(id).addEventListener('change', updatePageSettings);
   });
-  
+
   // Advanced
   document.getElementById('restore-defaults').addEventListener('click', restoreDefaults);
   document.getElementById('export-data').addEventListener('click', exportData);
@@ -293,6 +323,96 @@ function updateUI(status = currentStatus) {
     const stuckValue = document.getElementById('stuck-value');
     stuckSlider.value = settings.stuckThresholdMinutes;
     stuckValue.textContent = settings.stuckThresholdMinutes;
+  }
+
+  // NEW: Advanced human-like behavior settings
+  if (settings.enableReadingTime !== undefined) {
+    document.getElementById('enable-reading-time').checked = settings.enableReadingTime;
+  }
+  if (settings.readingTimeMin !== undefined) {
+    document.getElementById('reading-min-slider').value = settings.readingTimeMin;
+    document.getElementById('reading-min-value').textContent = settings.readingTimeMin;
+  }
+  if (settings.readingTimeMax !== undefined) {
+    document.getElementById('reading-max-slider').value = settings.readingTimeMax;
+    document.getElementById('reading-max-value').textContent = settings.readingTimeMax;
+  }
+
+  if (settings.engagementProbability !== undefined) {
+    document.getElementById('engagement-prob-slider').value = settings.engagementProbability;
+    document.getElementById('engagement-prob-value').textContent = settings.engagementProbability;
+  }
+  if (settings.skipTweetsBetweenComments !== undefined) {
+    document.getElementById('skip-tweets-checkbox').checked = settings.skipTweetsBetweenComments;
+  }
+  if (settings.minTweetsToSkip !== undefined) {
+    document.getElementById('min-skip-slider').value = settings.minTweetsToSkip;
+    document.getElementById('min-skip-value').textContent = settings.minTweetsToSkip;
+  }
+  if (settings.maxTweetsToSkip !== undefined) {
+    document.getElementById('max-skip-slider').value = settings.maxTweetsToSkip;
+    document.getElementById('max-skip-value').textContent = settings.maxTweetsToSkip;
+  }
+
+  if (settings.enableRandomBreaks !== undefined) {
+    document.getElementById('enable-breaks-checkbox').checked = settings.enableRandomBreaks;
+  }
+  if (settings.breakIntervalMin !== undefined) {
+    document.getElementById('break-interval-min-slider').value = settings.breakIntervalMin;
+    document.getElementById('break-interval-min-value').textContent = settings.breakIntervalMin;
+  }
+  if (settings.breakIntervalMax !== undefined) {
+    document.getElementById('break-interval-max-slider').value = settings.breakIntervalMax;
+    document.getElementById('break-interval-max-value').textContent = settings.breakIntervalMax;
+  }
+  if (settings.breakDurationMin !== undefined) {
+    document.getElementById('break-duration-min-slider').value = settings.breakDurationMin;
+    document.getElementById('break-duration-min-value').textContent = settings.breakDurationMin;
+  }
+  if (settings.breakDurationMax !== undefined) {
+    document.getElementById('break-duration-max-slider').value = settings.breakDurationMax;
+    document.getElementById('break-duration-max-value').textContent = settings.breakDurationMax;
+  }
+
+  if (settings.enableRealisticTyping !== undefined) {
+    document.getElementById('enable-typing-checkbox').checked = settings.enableRealisticTyping;
+  }
+  if (settings.typingSpeedMin !== undefined) {
+    document.getElementById('typing-min-slider').value = settings.typingSpeedMin;
+    document.getElementById('typing-min-value').textContent = settings.typingSpeedMin;
+  }
+  if (settings.typingSpeedMax !== undefined) {
+    document.getElementById('typing-max-slider').value = settings.typingSpeedMax;
+    document.getElementById('typing-max-value').textContent = settings.typingSpeedMax;
+  }
+  if (settings.typoChance !== undefined) {
+    document.getElementById('typo-chance-slider').value = settings.typoChance;
+    document.getElementById('typo-chance-value').textContent = settings.typoChance;
+  }
+
+  if (settings.enableSessionMoods !== undefined) {
+    document.getElementById('enable-moods-checkbox').checked = settings.enableSessionMoods;
+  }
+  if (settings.moodChangeInterval !== undefined) {
+    document.getElementById('mood-interval-slider').value = settings.moodChangeInterval;
+    document.getElementById('mood-interval-value').textContent = settings.moodChangeInterval;
+  }
+
+  if (settings.enableMediaDetection !== undefined) {
+    document.getElementById('enable-media-checkbox').checked = settings.enableMediaDetection;
+  }
+  if (settings.mediaViewTimeMin !== undefined) {
+    document.getElementById('media-min-slider').value = settings.mediaViewTimeMin;
+    document.getElementById('media-min-value').textContent = settings.mediaViewTimeMin;
+  }
+  if (settings.mediaViewTimeMax !== undefined) {
+    document.getElementById('media-max-slider').value = settings.mediaViewTimeMax;
+    document.getElementById('media-max-value').textContent = settings.mediaViewTimeMax;
+  }
+
+  if (settings.abandonCommentChance !== undefined) {
+    document.getElementById('abandon-chance-slider').value = settings.abandonCommentChance;
+    document.getElementById('abandon-chance-value').textContent = settings.abandonCommentChance;
   }
 
   // Page settings
@@ -512,6 +632,127 @@ async function updateStuckThreshold(event) {
   const value = parseInt(event.target.value);
   document.getElementById('stuck-value').textContent = value;
   await updateSettings({ stuckThresholdMinutes: value });
+}
+
+// NEW: Advanced human-like behavior update functions
+async function updateReadingTimeEnabled(event) {
+  await updateSettings({ enableReadingTime: event.target.checked });
+}
+
+async function updateReadingTimeMin(event) {
+  const value = parseInt(event.target.value);
+  document.getElementById('reading-min-value').textContent = value;
+  await updateSettings({ readingTimeMin: value });
+}
+
+async function updateReadingTimeMax(event) {
+  const value = parseInt(event.target.value);
+  document.getElementById('reading-max-value').textContent = value;
+  await updateSettings({ readingTimeMax: value });
+}
+
+async function updateEngagementProb(event) {
+  const value = parseInt(event.target.value);
+  document.getElementById('engagement-prob-value').textContent = value;
+  await updateSettings({ engagementProbability: value });
+}
+
+async function updateSkipTweets(event) {
+  await updateSettings({ skipTweetsBetweenComments: event.target.checked });
+}
+
+async function updateMinSkip(event) {
+  const value = parseInt(event.target.value);
+  document.getElementById('min-skip-value').textContent = value;
+  await updateSettings({ minTweetsToSkip: value });
+}
+
+async function updateMaxSkip(event) {
+  const value = parseInt(event.target.value);
+  document.getElementById('max-skip-value').textContent = value;
+  await updateSettings({ maxTweetsToSkip: value });
+}
+
+async function updateBreaksEnabled(event) {
+  await updateSettings({ enableRandomBreaks: event.target.checked });
+}
+
+async function updateBreakIntervalMin(event) {
+  const value = parseInt(event.target.value);
+  document.getElementById('break-interval-min-value').textContent = value;
+  await updateSettings({ breakIntervalMin: value });
+}
+
+async function updateBreakIntervalMax(event) {
+  const value = parseInt(event.target.value);
+  document.getElementById('break-interval-max-value').textContent = value;
+  await updateSettings({ breakIntervalMax: value });
+}
+
+async function updateBreakDurationMin(event) {
+  const value = parseInt(event.target.value);
+  document.getElementById('break-duration-min-value').textContent = value;
+  await updateSettings({ breakDurationMin: value });
+}
+
+async function updateBreakDurationMax(event) {
+  const value = parseInt(event.target.value);
+  document.getElementById('break-duration-max-value').textContent = value;
+  await updateSettings({ breakDurationMax: value });
+}
+
+async function updateTypingEnabled(event) {
+  await updateSettings({ enableRealisticTyping: event.target.checked });
+}
+
+async function updateTypingMin(event) {
+  const value = parseInt(event.target.value);
+  document.getElementById('typing-min-value').textContent = value;
+  await updateSettings({ typingSpeedMin: value });
+}
+
+async function updateTypingMax(event) {
+  const value = parseInt(event.target.value);
+  document.getElementById('typing-max-value').textContent = value;
+  await updateSettings({ typingSpeedMax: value });
+}
+
+async function updateTypoChance(event) {
+  const value = parseInt(event.target.value);
+  document.getElementById('typo-chance-value').textContent = value;
+  await updateSettings({ typoChance: value });
+}
+
+async function updateMoodsEnabled(event) {
+  await updateSettings({ enableSessionMoods: event.target.checked });
+}
+
+async function updateMoodInterval(event) {
+  const value = parseInt(event.target.value);
+  document.getElementById('mood-interval-value').textContent = value;
+  await updateSettings({ moodChangeInterval: value });
+}
+
+async function updateMediaEnabled(event) {
+  await updateSettings({ enableMediaDetection: event.target.checked });
+}
+
+async function updateMediaMin(event) {
+  const value = parseInt(event.target.value);
+  document.getElementById('media-min-value').textContent = value;
+  await updateSettings({ mediaViewTimeMin: value });
+}
+
+async function updateMediaMax(event) {
+  const value = parseInt(event.target.value);
+  document.getElementById('media-max-value').textContent = value;
+  await updateSettings({ mediaViewTimeMax: value });
+}
+
+async function updateAbandonChance(event) {
+  const value = parseInt(event.target.value);
+  document.getElementById('abandon-chance-value').textContent = value;
+  await updateSettings({ abandonCommentChance: value });
 }
 
 async function updatePageSettings() {
