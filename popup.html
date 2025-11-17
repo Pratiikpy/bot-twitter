@@ -391,13 +391,65 @@
         <button id="stop-btn" class="button secondary">⏹️ Stop</button>
         <button id="reset-btn" class="button danger">🔄 Reset Stats</button>
       </div>
-      
+
       <div>
         <label>Cooldown (seconds): <span id="cooldown-value">8</span></label>
         <input type="range" id="cooldown-slider" class="slider" min="3" max="30" value="8">
       </div>
     </div>
-    
+
+    <div class="control-group">
+      <h3>⏱️ Rate Limiting</h3>
+
+      <div style="margin-bottom: 15px;">
+        <label>Comments Per Minute: <span id="cpm-value">2</span></label>
+        <input type="range" id="cpm-slider" class="slider" min="1" max="3" value="2" step="1">
+        <div class="help-text" style="font-size: 11px; color: #888; margin-top: 5px;">
+          Max comments allowed per minute (1-3)
+        </div>
+      </div>
+
+      <div>
+        <label>Min Comment Interval: <span id="interval-value">20</span>s</label>
+        <input type="range" id="interval-slider" class="slider" min="10" max="60" value="20" step="5">
+        <div class="help-text" style="font-size: 11px; color: #888; margin-top: 5px;">
+          Minimum seconds between comments (10-60s)
+        </div>
+      </div>
+    </div>
+
+    <div class="control-group">
+      <h3>🤖 Human-Like Behavior</h3>
+
+      <div style="margin-bottom: 15px;">
+        <label class="checkbox-label">
+          <input type="checkbox" id="mouse-movement-checkbox" checked>
+          Enable Random Mouse Movements
+        </label>
+        <div class="help-text" style="font-size: 11px; color: #888; margin-top: 5px;">
+          Simulates natural mouse movements while scrolling
+        </div>
+      </div>
+
+      <div style="margin-bottom: 15px;">
+        <label class="checkbox-label">
+          <input type="checkbox" id="auto-refresh-checkbox" checked>
+          Enable Auto-Refresh When Stuck
+        </label>
+        <div class="help-text" style="font-size: 11px; color: #888; margin-top: 5px;">
+          Automatically refreshes if no activity detected
+        </div>
+      </div>
+
+      <div>
+        <label>Stuck Threshold: <span id="stuck-value">5</span> min</label>
+        <input type="range" id="stuck-slider" class="slider" min="3" max="15" value="5" step="1">
+        <div class="help-text" style="font-size: 11px; color: #888; margin-top: 5px;">
+          Minutes of inactivity before auto-refresh (3-15 min)
+        </div>
+      </div>
+    </div>
+
     <div class="control-group">
       <h3>📊 Quick Stats</h3>
       <div class="stats-grid">

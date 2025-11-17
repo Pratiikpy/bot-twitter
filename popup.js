@@ -65,7 +65,14 @@ function setupEventListeners() {
   document.getElementById('cooldown-slider').addEventListener('input', updateCooldown);
   document.getElementById('min-likes-slider').addEventListener('input', updateMinLikes);
   document.getElementById('min-followers-slider').addEventListener('input', updateMinFollowers);
-  
+
+  // NEW: Rate limiting and human-like behavior settings
+  document.getElementById('cpm-slider').addEventListener('input', updateCommentsPerMinute);
+  document.getElementById('interval-slider').addEventListener('input', updateCommentInterval);
+  document.getElementById('mouse-movement-checkbox').addEventListener('change', updateMouseMovement);
+  document.getElementById('auto-refresh-checkbox').addEventListener('change', updateAutoRefresh);
+  document.getElementById('stuck-slider').addEventListener('input', updateStuckThreshold);
+
   // API Configuration
   document.getElementById('api-key').addEventListener('input', updateApiKey);
   document.getElementById('model-select').addEventListener('change', updateModel);
@@ -256,7 +263,38 @@ function updateUI(status = currentStatus) {
   if (settings.hashtagPolicy) {
     document.getElementById('hashtag-policy').value = settings.hashtagPolicy;
   }
-  
+
+  // NEW: Rate limiting settings
+  if (settings.commentsPerMinute !== undefined) {
+    const cpmSlider = document.getElementById('cpm-slider');
+    const cpmValue = document.getElementById('cpm-value');
+    cpmSlider.value = settings.commentsPerMinute;
+    cpmValue.textContent = settings.commentsPerMinute;
+  }
+
+  if (settings.minCommentInterval !== undefined) {
+    const intervalSlider = document.getElementById('interval-slider');
+    const intervalValue = document.getElementById('interval-value');
+    intervalSlider.value = settings.minCommentInterval / 1000; // Convert from ms to seconds
+    intervalValue.textContent = settings.minCommentInterval / 1000;
+  }
+
+  // NEW: Human-like behavior settings
+  if (settings.enableMouseMovement !== undefined) {
+    document.getElementById('mouse-movement-checkbox').checked = settings.enableMouseMovement;
+  }
+
+  if (settings.enableAutoRefresh !== undefined) {
+    document.getElementById('auto-refresh-checkbox').checked = settings.enableAutoRefresh;
+  }
+
+  if (settings.stuckThresholdMinutes !== undefined) {
+    const stuckSlider = document.getElementById('stuck-slider');
+    const stuckValue = document.getElementById('stuck-value');
+    stuckSlider.value = settings.stuckThresholdMinutes;
+    stuckValue.textContent = settings.stuckThresholdMinutes;
+  }
+
   // Page settings
   if (settings.enabledPages) {
     Object.keys(settings.enabledPages).forEach(page => {
@@ -447,6 +485,33 @@ async function updateEmojiPolicy(event) {
 
 async function updateHashtagPolicy(event) {
   await updateSettings({ hashtagPolicy: event.target.value });
+}
+
+// NEW: Rate limiting and human-like behavior update functions
+async function updateCommentsPerMinute(event) {
+  const value = parseInt(event.target.value);
+  document.getElementById('cpm-value').textContent = value;
+  await updateSettings({ commentsPerMinute: value });
+}
+
+async function updateCommentInterval(event) {
+  const value = parseInt(event.target.value);
+  document.getElementById('interval-value').textContent = value;
+  await updateSettings({ minCommentInterval: value * 1000 }); // Convert to ms
+}
+
+async function updateMouseMovement(event) {
+  await updateSettings({ enableMouseMovement: event.target.checked });
+}
+
+async function updateAutoRefresh(event) {
+  await updateSettings({ enableAutoRefresh: event.target.checked });
+}
+
+async function updateStuckThreshold(event) {
+  const value = parseInt(event.target.value);
+  document.getElementById('stuck-value').textContent = value;
+  await updateSettings({ stuckThresholdMinutes: value });
 }
 
 async function updatePageSettings() {

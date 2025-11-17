@@ -7,6 +7,8 @@ let botState = {
   active: false,
   busy: false,
   lastAction: 0,
+  lastActivityTime: Date.now(), // Track last activity for stuck detection
+  commentTimestamps: [], // Track comment times for rate limiting
   stats: {
     commentsPosted: 0,
     tweetsLiked: 0,
@@ -14,7 +16,8 @@ let botState = {
     apiCalls: 0,
     sessionStart: Date.now(),
     successRate: 0,
-    totalAttempts: 0
+    totalAttempts: 0,
+    autoRefreshes: 0
   },
   settings: {
     tone: 'casual',
@@ -24,6 +27,13 @@ let botState = {
     cooldown: 8000,
     minLikes: 0,
     minFollowers: 0,
+    // NEW: Rate limiting settings
+    commentsPerMinute: 2, // Max comments per minute (1-3)
+    minCommentInterval: 20000, // Minimum time between comments in ms (20 seconds default)
+    // NEW: Human-like behavior settings
+    enableMouseMovement: true, // Random mouse movements
+    enableAutoRefresh: true, // Auto-refresh if stuck
+    stuckThresholdMinutes: 5, // Refresh if no activity for this many minutes
     enabledPages: {
       home: true,
       search: true,
@@ -58,6 +68,85 @@ const poll = async (fn, n = POLL_MAX) => {
   }
   return null;
 };
+
+// NEW: Rate limiting - check if we can comment based on rate limit settings
+function canCommentNow() {
+  const now = Date.now();
+  const { commentsPerMinute, minCommentInterval } = botState.settings;
+
+  // Check minimum interval between comments
+  if (now - botState.lastAction < minCommentInterval) {
+    console.log(`⏳ Rate limit: Waiting ${Math.round((minCommentInterval - (now - botState.lastAction)) / 1000)}s before next comment`);
+    return false;
+  }
+
+  // Clean up old timestamps (older than 1 minute)
+  const oneMinuteAgo = now - 60000;
+  botState.commentTimestamps = botState.commentTimestamps.filter(t => t > oneMinuteAgo);
+
+  // Check comments per minute limit
+  if (botState.commentTimestamps.length >= commentsPerMinute) {
+    const oldestTimestamp = Math.min(...botState.commentTimestamps);
+    const waitTime = Math.round((60000 - (now - oldestTimestamp)) / 1000);
+    console.log(`⏳ Rate limit: ${botState.commentTimestamps.length}/${commentsPerMinute} comments in last minute. Wait ${waitTime}s`);
+    return false;
+  }
+
+  return true;
+}
+
+// NEW: Record a comment for rate limiting
+function recordComment() {
+  botState.commentTimestamps.push(Date.now());
+  botState.lastActivityTime = Date.now();
+}
+
+// NEW: Simulate random mouse movements to appear more human-like
+function simulateMouseMovement() {
+  if (!botState.settings.enableMouseMovement) return;
+
+  try {
+    const randomX = Math.floor(Math.random() * window.innerWidth);
+    const randomY = Math.floor(Math.random() * window.innerHeight);
+
+    // Create and dispatch a mousemove event
+    const event = new MouseEvent('mousemove', {
+      view: window,
+      bubbles: true,
+      cancelable: true,
+      clientX: randomX,
+      clientY: randomY
+    });
+
+    document.dispatchEvent(event);
+    console.log(`🖱️ Mouse moved to (${randomX}, ${randomY})`);
+  } catch (error) {
+    console.log('⚠️ Mouse movement simulation failed:', error);
+  }
+}
+
+// NEW: Check if bot is stuck and needs refresh
+function checkIfStuckAndRefresh() {
+  if (!botState.settings.enableAutoRefresh || !botState.active) return;
+
+  const now = Date.now();
+  const stuckThresholdMs = botState.settings.stuckThresholdMinutes * 60000;
+  const timeSinceLastActivity = now - botState.lastActivityTime;
+
+  if (timeSinceLastActivity > stuckThresholdMs) {
+    console.log(`🔄 Bot stuck for ${Math.round(timeSinceLastActivity / 60000)} minutes. Refreshing to home feed...`);
+    botState.stats.autoRefreshes++;
+    botState.lastActivityTime = now;
+
+    // Navigate to home feed
+    if (window.location.pathname !== '/home') {
+      window.location.href = 'https://x.com/home';
+    } else {
+      // Already on home, just refresh
+      window.location.reload();
+    }
+  }
+}
 
 // Load settings from storage with enhanced API config
 async function loadSettings() {
@@ -285,13 +374,18 @@ function getReplyButton() {
   );
 }
 
-// ENHANCED: Faster processTweet function with immediate scrolling
+// ENHANCED: Faster processTweet function with immediate scrolling + rate limiting
 async function processTweet(article) {
   if (!botState.active || botState.busy) return;
-  
+
   const pageInfo = detectPageInfo();
   if (!pageInfo.isValidPage) return;
-  
+
+  // NEW: Check rate limiting before processing
+  if (!canCommentNow()) {
+    return; // Skip this tweet due to rate limiting
+  }
+
   // Check if API is configured
   if (!botState.apiConfig.anthropic_api_key) {
     console.log('⚠️ API key not configured, skipping tweet processing');
@@ -467,14 +561,17 @@ async function processTweet(article) {
       console.log(`✅ Successfully replied to ${tweetId} on ${pageInfo.pageType} page: "${response.text}"`);
       repliedTweets.add(tweetId);
       botState.stats.commentsPosted++;
-      
+
+      // NEW: Record this comment for rate limiting
+      recordComment();
+
       // ENHANCED: Immediate fast scroll after successful comment
       console.log('🚀 FAST SCROLL: Moving to next content immediately');
-      window.scrollBy({ 
+      window.scrollBy({
         top: window.innerHeight * 1.2, // Larger scroll distance
-        behavior: 'smooth' 
+        behavior: 'smooth'
       });
-      
+
       // Update success rate
       botState.stats.successRate = Math.round((botState.stats.commentsPosted / botState.stats.totalAttempts) * 100);
     } else {
@@ -515,28 +612,40 @@ function scanForTweets() {
   }
 }
 
-// ENHANCED: More aggressive auto-scroll function
+// ENHANCED: More aggressive auto-scroll function with human-like behavior
 function autoScroll() {
   const pageInfo = detectPageInfo();
   if (botState.active && !botState.busy && pageInfo.isValidPage) {
     console.log(`📜 ENHANCED AUTO-SCROLL on ${pageInfo.pageType} page...`);
-    
+
+    // NEW: Random mouse movement before scrolling
+    if (Math.random() > 0.5) { // 50% chance
+      simulateMouseMovement();
+    }
+
     // More aggressive scrolling
     const scrollAmount = window.innerHeight * 0.8; // Increased from 0.5
-    window.scrollBy({ 
-      top: scrollAmount, 
-      behavior: 'smooth' 
+    window.scrollBy({
+      top: scrollAmount,
+      behavior: 'smooth'
     });
-    
+
     // Optional: Random scroll variation to look more human
     setTimeout(() => {
       if (Math.random() > 0.7) { // 30% chance for extra micro-scroll
-        window.scrollBy({ 
-          top: Math.random() * 200 + 100, 
-          behavior: 'smooth' 
+        window.scrollBy({
+          top: Math.random() * 200 + 100,
+          behavior: 'smooth'
         });
+        // NEW: Another mouse movement after micro-scroll
+        if (Math.random() > 0.6) {
+          simulateMouseMovement();
+        }
       }
     }, 1000);
+
+    // Update activity time on scroll
+    botState.lastActivityTime = Date.now();
   }
 }
 
@@ -646,7 +755,21 @@ async function initialize() {
   
   // ENHANCED: More frequent auto-scroll for faster browsing
   setInterval(autoScroll, 8000); // Reduced from 12000ms - scroll every 8 seconds
-  
+
+  // NEW: Check for stuck bot and auto-refresh every 30 seconds
+  setInterval(() => {
+    checkIfStuckAndRefresh();
+  }, 30000); // Check every 30 seconds
+
+  // NEW: Random mouse movements throughout the session
+  setInterval(() => {
+    if (botState.active && botState.settings.enableMouseMovement) {
+      if (Math.random() > 0.7) { // 30% chance every interval
+        simulateMouseMovement();
+      }
+    }
+  }, 15000); // Every 15 seconds
+
   // Memory cleanup - keep this the same
   setInterval(() => {
     if (processedTweets.size > 1000) {
