@@ -1,0 +1,662 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="utf-8">
+  <style>
+    body {
+      width: 450px;
+      min-height: 600px;
+      margin: 0;
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Arial, sans-serif;
+      background: #1a1a1a;
+      color: #ffffff;
+    }
+    
+    .header {
+      background: linear-gradient(135deg, #1d9bf0, #1874cd);
+      padding: 20px;
+      text-align: center;
+      border-bottom: 1px solid #333;
+    }
+    
+    .header h1 {
+      margin: 0;
+      font-size: 18px;
+      font-weight: 700;
+    }
+    
+    .status {
+      margin: 10px 0 0 0;
+      font-size: 14px;
+      opacity: 0.9;
+    }
+    
+    .tabs {
+      display: flex;
+      background: #2a2a2a;
+      border-bottom: 1px solid #333;
+      overflow-x: auto;
+    }
+    
+    .tab {
+      flex: 1;
+      padding: 12px 8px;
+      text-align: center;
+      cursor: pointer;
+      font-size: 11px;
+      font-weight: 500;
+      border: none;
+      background: transparent;
+      color: #888;
+      transition: all 0.2s;
+      white-space: nowrap;
+      min-width: 70px;
+    }
+    
+    .tab.active {
+      color: #1d9bf0;
+      background: #1a1a1a;
+      border-bottom: 2px solid #1d9bf0;
+    }
+    
+    .tab-content {
+      display: none;
+      padding: 20px;
+      max-height: 500px;
+      overflow-y: auto;
+    }
+    
+    .tab-content.active {
+      display: block;
+    }
+    
+    .control-group {
+      margin-bottom: 20px;
+      padding: 15px;
+      background: #2a2a2a;
+      border-radius: 8px;
+      border: 1px solid #333;
+    }
+    
+    .control-group h3 {
+      margin: 0 0 15px 0;
+      font-size: 14px;
+      color: #1d9bf0;
+      font-weight: 600;
+    }
+    
+    .button {
+      padding: 10px 20px;
+      border: none;
+      border-radius: 6px;
+      cursor: pointer;
+      font-weight: 600;
+      font-size: 14px;
+      transition: all 0.2s;
+    }
+    
+    .button.primary {
+      background: #1d9bf0;
+      color: white;
+    }
+    
+    .button.primary:hover {
+      background: #1874cd;
+    }
+    
+    .button.secondary {
+      background: #333;
+      color: white;
+    }
+    
+    .button.secondary:hover {
+      background: #444;
+    }
+    
+    .button.danger {
+      background: #dc3545;
+      color: white;
+    }
+    
+    .button.danger:hover {
+      background: #c82333;
+    }
+    
+    .button:disabled {
+      opacity: 0.5;
+      cursor: not-allowed;
+    }
+    
+    .radio-group {
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+    }
+    
+    .radio-item {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+    
+    .radio-item input[type="radio"] {
+      accent-color: #1d9bf0;
+    }
+    
+    .radio-item label {
+      font-size: 14px;
+      cursor: pointer;
+    }
+    
+    .slider {
+      width: 100%;
+      height: 4px;
+      border-radius: 2px;
+      background: #333;
+      outline: none;
+      accent-color: #1d9bf0;
+    }
+    
+    .input {
+      width: 100%;
+      padding: 8px 12px;
+      border: 1px solid #333;
+      border-radius: 6px;
+      background: #1a1a1a;
+      color: white;
+      font-size: 14px;
+      box-sizing: border-box;
+    }
+    
+    .input:focus {
+      border-color: #1d9bf0;
+      outline: none;
+    }
+    
+    .textarea {
+      width: 100%;
+      min-height: 120px;
+      padding: 12px;
+      border: 1px solid #333;
+      border-radius: 6px;
+      background: #1a1a1a;
+      color: white;
+      font-size: 13px;
+      font-family: 'Courier New', monospace;
+      resize: vertical;
+      box-sizing: border-box;
+    }
+    
+    .textarea:focus {
+      border-color: #1d9bf0;
+      outline: none;
+    }
+    
+    .checkbox {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      margin: 8px 0;
+    }
+    
+    .checkbox input[type="checkbox"] {
+      accent-color: #1d9bf0;
+    }
+    
+    .stats-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 15px;
+    }
+    
+    .stat-card {
+      background: #2a2a2a;
+      padding: 15px;
+      border-radius: 8px;
+      text-align: center;
+      border: 1px solid #333;
+    }
+    
+    .stat-number {
+      font-size: 24px;
+      font-weight: 700;
+      color: #1d9bf0;
+      margin-bottom: 5px;
+    }
+    
+    .stat-label {
+      font-size: 12px;
+      color: #888;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+    }
+    
+    .activity-log {
+      max-height: 200px;
+      overflow-y: auto;
+      background: #1a1a1a;
+      border: 1px solid #333;
+      border-radius: 6px;
+      padding: 10px;
+    }
+    
+    .activity-item {
+      padding: 8px 0;
+      border-bottom: 1px solid #333;
+      font-size: 12px;
+      color: #ccc;
+    }
+    
+    .activity-item:last-child {
+      border-bottom: none;
+    }
+    
+    .activity-time {
+      color: #888;
+      margin-right: 8px;
+    }
+    
+    .status-indicator {
+      display: inline-block;
+      width: 8px;
+      height: 8px;
+      border-radius: 50%;
+      margin-right: 8px;
+    }
+    
+    .status-active {
+      background: #28a745;
+      animation: pulse 2s infinite;
+    }
+    
+    .status-inactive {
+      background: #dc3545;
+    }
+    
+    .status-paused {
+      background: #ffc107;
+    }
+    
+    @keyframes pulse {
+      0% { opacity: 1; }
+      50% { opacity: 0.5; }
+      100% { opacity: 1; }
+    }
+    
+    .page-info {
+      background: #2a2a2a;
+      padding: 10px;
+      border-radius: 6px;
+      font-size: 12px;
+      margin-bottom: 15px;
+    }
+    
+    .page-type {
+      color: #1d9bf0;
+      font-weight: 600;
+    }
+    
+    .input-group {
+      margin-bottom: 15px;
+    }
+    
+    .input-group label {
+      display: block;
+      margin-bottom: 5px;
+      font-size: 13px;
+      color: #ccc;
+    }
+    
+    .help-text {
+      font-size: 11px;
+      color: #888;
+      margin-top: 5px;
+      line-height: 1.4;
+    }
+    
+    .api-status {
+      display: inline-block;
+      padding: 2px 6px;
+      border-radius: 4px;
+      font-size: 10px;
+      font-weight: 600;
+      margin-left: 8px;
+    }
+    
+    .api-status.valid {
+      background: #28a745;
+      color: white;
+    }
+    
+    .api-status.invalid {
+      background: #dc3545;
+      color: white;
+    }
+    
+    .api-status.unknown {
+      background: #ffc107;
+      color: black;
+    }
+    
+    .prompt-stats {
+      background: #1a1a1a;
+      padding: 8px 12px;
+      border-radius: 4px;
+      font-size: 11px;
+      color: #888;
+      margin-top: 8px;
+    }
+    
+    .button-group {
+      display: flex;
+      gap: 8px;
+      margin-top: 10px;
+    }
+    
+    .button-group .button {
+      flex: 1;
+      font-size: 12px;
+      padding: 8px 12px;
+    }
+  </style>
+</head>
+<body>
+  <div class="header">
+    <h1>🤖 Universal Twitter Bot</h1>
+    <div class="status">
+      <span id="status-indicator" class="status-indicator status-inactive"></span>
+      <span id="status-text">Inactive</span>
+    </div>
+  </div>
+  
+  <div class="tabs">
+    <button class="tab active" data-tab="control">Control</button>
+    <button class="tab" data-tab="prompt">Prompt & API</button>
+    <button class="tab" data-tab="behavior">Behavior</button>
+    <button class="tab" data-tab="filters">Filters</button>
+    <button class="tab" data-tab="stats">Stats</button>
+  </div>
+  
+  <!-- Control Tab -->
+  <div class="tab-content active" data-content="control">
+    <div class="page-info">
+      <div>Current Page: <span id="current-page" class="page-type">Loading...</span></div>
+      <div>Page Status: <span id="page-status">Checking...</span></div>
+    </div>
+    
+    <div class="control-group">
+      <h3>🎛️ Bot Control</h3>
+      <div style="display: flex; gap: 10px; margin-bottom: 15px;">
+        <button id="start-btn" class="button primary">▶️ Start</button>
+        <button id="stop-btn" class="button secondary">⏹️ Stop</button>
+        <button id="reset-btn" class="button danger">🔄 Reset Stats</button>
+      </div>
+      
+      <div>
+        <label>Cooldown (seconds): <span id="cooldown-value">8</span></label>
+        <input type="range" id="cooldown-slider" class="slider" min="3" max="30" value="8">
+      </div>
+    </div>
+    
+    <div class="control-group">
+      <h3>📊 Quick Stats</h3>
+      <div class="stats-grid">
+        <div class="stat-card">
+          <div id="comments-count" class="stat-number">0</div>
+          <div class="stat-label">Comments</div>
+        </div>
+        <div class="stat-card">
+          <div id="likes-count" class="stat-number">0</div>
+          <div class="stat-label">Likes</div>
+        </div>
+        <div class="stat-card">
+          <div id="success-rate" class="stat-number">0%</div>
+          <div class="stat-label">Success Rate</div>
+        </div>
+        <div class="stat-card">
+          <div id="api-calls" class="stat-number">0</div>
+          <div class="stat-label">API Calls</div>
+        </div>
+      </div>
+    </div>
+  </div>
+  
+  <!-- Prompt & API Tab -->
+  <div class="tab-content" data-content="prompt">
+    <div class="control-group">
+      <h3>🔑 API Configuration</h3>
+      
+      <div class="input-group">
+        <label for="api-key">Anthropic API Key <span id="api-status" class="api-status unknown">Not Set</span></label>
+        <input type="password" id="api-key" class="input" placeholder="sk-ant-api03-...">
+        <div class="help-text">Get your API key from console.anthropic.com</div>
+      </div>
+      
+      <div class="input-group">
+        <label for="model-select">Claude Model</label>
+        <select id="model-select" class="input">
+          <option value="claude-3-haiku-20240307">Claude 3 Haiku (Fast & Cheap)</option>
+          <option value="claude-3-sonnet-20240229">Claude 3 Sonnet (Balanced)</option>
+          <option value="claude-3-opus-20240229">Claude 3 Opus (Most Capable)</option>
+        </select>
+        <div class="help-text">Haiku recommended for cost-effective automation</div>
+      </div>
+      
+      <div class="input-group">
+        <label for="temperature-slider">Creativity Level: <span id="temperature-value">0.8</span></label>
+        <input type="range" id="temperature-slider" class="slider" min="0" max="1" step="0.1" value="0.8">
+        <div class="help-text">Higher = more creative/random, Lower = more consistent</div>
+      </div>
+    </div>
+    
+    <div class="control-group">
+      <h3>📝 Custom Prompt</h3>
+      
+      <div class="input-group">
+        <label for="custom-prompt">System Prompt</label>
+        <textarea id="custom-prompt" class="textarea" placeholder="Describe how you want your bot to comment..."></textarea>
+        <div class="prompt-stats">
+          <span id="prompt-chars">0</span> characters | 
+          <span id="prompt-words">0</span> words | 
+          Est. tokens: <span id="prompt-tokens">0</span>
+        </div>
+      </div>
+      
+      <div class="button-group">
+        <button id="test-prompt" class="button secondary">🧪 Test</button>
+        <button id="restore-prompt" class="button secondary">🔄 Default</button>
+        <button id="save-prompt" class="button primary">💾 Save</button>
+      </div>
+      
+      <div class="help-text">
+        <strong>Tips:</strong> Be specific about tone, style, and behavior. Mention crypto Twitter slang you like, how aggressive/casual you want to be, topics to focus on, etc.
+      </div>
+    </div>
+    
+    <div class="control-group">
+      <h3>🎯 Quick Presets</h3>
+      <div style="display: flex; flex-wrap: wrap; gap: 8px;">
+        <button id="preset-degen" class="button secondary" style="font-size: 11px;">🔥 Degen</button>
+        <button id="preset-professional" class="button secondary" style="font-size: 11px;">👔 Professional</button>
+        <button id="preset-memer" class="button secondary" style="font-size: 11px;">😂 Memer</button>
+        <button id="preset-analyst" class="button secondary" style="font-size: 11px;">📊 Analyst</button>
+        <button id="preset-hype" class="button secondary" style="font-size: 11px;">🚀 Hype Beast</button>
+        <button id="preset-skeptic" class="button secondary" style="font-size: 11px;">🤔 Skeptic</button>
+      </div>
+    </div>
+  </div>
+  
+  <!-- Behavior Tab -->
+  <div class="tab-content" data-content="behavior">
+    <div class="control-group">
+      <h3>🎭 Tone Selector</h3>
+      <div class="radio-group">
+        <div class="radio-item">
+          <input type="radio" id="tone-casual" name="tone" value="casual" checked>
+          <label for="tone-casual">Casual - chill and laid-back</label>
+        </div>
+        <div class="radio-item">
+          <input type="radio" id="tone-hype" name="tone" value="hype">
+          <label for="tone-hype">Hype - excited and energetic</label>
+        </div>
+        <div class="radio-item">
+          <input type="radio" id="tone-skeptical" name="tone" value="skeptical">
+          <label for="tone-skeptical">Skeptical - questioning and cautious</label>
+        </div>
+        <div class="radio-item">
+          <input type="radio" id="tone-neutral" name="tone" value="neutral">
+          <label for="tone-neutral">Neutral - balanced and factual</label>
+        </div>
+        <div class="radio-item">
+          <input type="radio" id="tone-sarcastic" name="tone" value="sarcastic">
+          <label for="tone-sarcastic">Sarcastic - witty and clever</label>
+        </div>
+      </div>
+    </div>
+    
+    <div class="control-group">
+      <h3>📏 Reply Length</h3>
+      <div class="radio-group">
+        <div class="radio-item">
+          <input type="radio" id="length-ultra" name="length" value="ultra-short">
+          <label for="length-ultra">Ultra-short (1-5 words)</label>
+        </div>
+        <div class="radio-item">
+          <input type="radio" id="length-short" name="length" value="short" checked>
+          <label for="length-short">Short (6-10 words)</label>
+        </div>
+        <div class="radio-item">
+          <input type="radio" id="length-medium" name="length" value="medium">
+          <label for="length-medium">Medium (11-15 words)</label>
+        </div>
+        <div class="radio-item">
+          <input type="radio" id="length-max" name="length" value="max">
+          <label for="length-max">Max (16-20 words)</label>
+        </div>
+      </div>
+    </div>
+    
+    <div class="control-group">
+      <h3>😀 Content Policies</h3>
+      <div style="margin-bottom: 15px;">
+        <label>Emoji Policy:</label>
+        <select id="emoji-policy" class="input" style="margin-top: 5px;">
+          <option value="none">None - no emojis</option>
+          <option value="rare">Rare - very occasional</option>
+          <option value="moderate">Moderate - when helpful</option>
+          <option value="frequent">Frequent - express emotions</option>
+        </select>
+      </div>
+      
+      <div>
+        <label>Hashtag Policy:</label>
+        <select id="hashtag-policy" class="input" style="margin-top: 5px;">
+          <option value="never">Never - completely forbidden</option>
+          <option value="rare">Rare - only if necessary</option>
+          <option value="topic-based">Topic-based - for trends only</option>
+        </select>
+      </div>
+    </div>
+  </div>
+  
+  <!-- Filters Tab -->
+  <div class="tab-content" data-content="filters">
+    <div class="control-group">
+      <h3>📊 Engagement Thresholds</h3>
+      <div style="margin-bottom: 15px;">
+        <label>Minimum Likes: <span id="min-likes-value">0</span></label>
+        <input type="range" id="min-likes-slider" class="slider" min="0" max="100" value="0">
+      </div>
+      
+      <div>
+        <label>Minimum Followers: <span id="min-followers-value">0</span></label>
+        <input type="range" id="min-followers-slider" class="slider" min="0" max="10000" step="100" value="0">
+      </div>
+    </div>
+    
+    <div class="control-group">
+      <h3>🌐 Page Settings</h3>
+      <div class="checkbox">
+        <input type="checkbox" id="enable-home" checked>
+        <label for="enable-home">Home Timeline</label>
+      </div>
+      <div class="checkbox">
+        <input type="checkbox" id="enable-search" checked>
+        <label for="enable-search">Search Results</label>
+      </div>
+      <div class="checkbox">
+        <input type="checkbox" id="enable-hashtag" checked>
+        <label for="enable-hashtag">Hashtag Pages</label>
+      </div>
+      <div class="checkbox">
+        <input type="checkbox" id="enable-profile" checked>
+        <label for="enable-profile">User Profiles</label>
+      </div>
+      <div class="checkbox">
+        <input type="checkbox" id="enable-community" checked>
+        <label for="enable-community">Communities</label>
+      </div>
+      <div class="checkbox">
+        <input type="checkbox" id="enable-lists" checked>
+        <label for="enable-lists">Lists</label>
+      </div>
+      <div class="checkbox">
+        <input type="checkbox" id="enable-explore" checked>
+        <label for="enable-explore">Explore Page</label>
+      </div>
+    </div>
+    
+    <div class="control-group">
+      <h3>⚙️ Advanced</h3>
+      <button id="restore-defaults" class="button secondary" style="width: 100%;">
+        🔄 Restore All Settings to Defaults
+      </button>
+    </div>
+  </div>
+  
+  <!-- Stats Tab -->
+  <div class="tab-content" data-content="stats">
+    <div class="control-group">
+      <h3>📈 Session Performance</h3>
+      <div class="stats-grid">
+        <div class="stat-card">
+          <div id="session-time" class="stat-number">0m</div>
+          <div class="stat-label">Running Time</div>
+        </div>
+        <div class="stat-card">
+          <div id="pages-visited" class="stat-number">0</div>
+          <div class="stat-label">Pages Visited</div>
+        </div>
+        <div class="stat-card">
+          <div id="total-attempts" class="stat-number">0</div>
+          <div class="stat-label">Total Attempts</div>
+        </div>
+        <div class="stat-card">
+          <div id="estimated-cost" class="stat-number">$0.00</div>
+          <div class="stat-label">Est. Cost</div>
+        </div>
+      </div>
+    </div>
+    
+    <div class="control-group">
+      <h3>📝 Activity Log</h3>
+      <div id="activity-log" class="activity-log">
+        <div class="activity-item">
+          <span class="activity-time">--:--</span>
+          Bot initialized and ready
+        </div>
+      </div>
+    </div>
+    
+    <div class="control-group">
+      <h3>💾 Data Management</h3>
+      <div style="display: flex; gap: 10px;">
+        <button id="export-data" class="button secondary">📤 Export</button>
+        <button id="clear-log" class="button secondary">🗑️ Clear Log</button>
+      </div>
+    </div>
+  </div>
+  
+  <script src="popup.js"></script>
+</body>
+</html>

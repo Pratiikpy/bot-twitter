@@ -1,0 +1,30 @@
+{
+  "manifest_version": 3,
+  "name": "Universal Twitter Bot",
+  "version": "2.1",
+  "description": "Advanced Twitter automation bot with full UI control panel - No config files needed!",
+  "permissions": [
+    "storage",
+    "scripting",
+    "activeTab"
+  ],
+  "host_permissions": [
+    "https://api.anthropic.com/*",
+    "https://x.com/*",
+    "https://twitter.com/*"
+  ],
+  "background": {
+    "service_worker": "bg.js"
+  },
+  "content_scripts": [
+    {
+      "matches": ["https://x.com/*", "https://twitter.com/*"],
+      "js": ["content.js"],
+      "run_at": "document_idle"
+    }
+  ],
+  "action": {
+    "default_popup": "popup.html",
+    "default_title": "Twitter Bot Control Panel"
+  }
+}
