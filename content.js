@@ -23,7 +23,7 @@ let botState = {
     totalAttempts: 0,
     autoRefreshes: 0,
     tweetsScrolled: 0,
-    breaksT aken: 0,
+    breaksTaken: 0,
     commentsAbandoned: 0
   },
   settings: {
