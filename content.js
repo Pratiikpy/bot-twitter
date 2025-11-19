@@ -13,6 +13,10 @@ let botState = {
   tweetsScrolledSinceComment: 0, // Track tweets between comments
   currentMood: 'normal', // Session mood: active, normal, passive
   lastMoodChange: Date.now(), // When mood last changed
+  // NEW: Stuck detection
+  currentTweetId: null, // Currently processing tweet ID
+  currentTweetStartTime: null, // When we started processing this tweet
+  stuckCheckInterval: null, // Interval for checking if stuck
   stats: {
     commentsPosted: 0,
     tweetsLiked: 0,
@@ -24,7 +28,8 @@ let botState = {
     autoRefreshes: 0,
     tweetsScrolled: 0,
     breaksTaken: 0,
-    commentsAbandoned: 0
+    commentsAbandoned: 0,
+    modalsEscaped: 0
   },
   settings: {
     tone: 'casual',
@@ -295,6 +300,94 @@ function updateSessionMood() {
       botState.currentMood = newMood;
       botState.lastMoodChange = now;
     }
+  }
+}
+
+// NEW: Close comment modal by clicking the X button
+function closeCommentModal() {
+  try {
+    // Find the modal dialog
+    const modal = document.querySelector('[role="dialog"]');
+    if (!modal) {
+      console.log('ℹ️ No modal found to close');
+      return false;
+    }
+
+    // Look for close button - Twitter uses an X button with aria-label "Close"
+    const closeButton = modal.querySelector('[aria-label="Close"]') ||
+                       modal.querySelector('[data-testid="app-bar-close"]') ||
+                       modal.querySelector('button[aria-label="Close"]');
+
+    if (closeButton) {
+      console.log('❌ Clicking X button to close stuck modal');
+      closeButton.click();
+      botState.stats.modalsEscaped++;
+      return true;
+    } else {
+      // Fallback to Escape key
+      console.log('⎋ Using Escape key as fallback');
+      document.dispatchEvent(new KeyboardEvent('keydown', { key: 'Escape' }));
+      botState.stats.modalsEscaped++;
+      return true;
+    }
+  } catch (error) {
+    console.error('❌ Error closing modal:', error);
+    // Last resort: Escape key
+    document.dispatchEvent(new KeyboardEvent('keydown', { key: 'Escape' }));
+    return false;
+  }
+}
+
+// NEW: Check if bot is stuck on same tweet for too long
+function checkIfStuck() {
+  if (!botState.busy || !botState.currentTweetId || !botState.currentTweetStartTime) {
+    return; // Not processing anything, can't be stuck
+  }
+
+  const now = Date.now();
+  const timeOnCurrentTweet = now - botState.currentTweetStartTime;
+  const stuckThreshold = 2 * 60 * 1000; // 2 minutes in milliseconds
+
+  if (timeOnCurrentTweet > stuckThreshold) {
+    console.log(`⚠️ STUCK DETECTED! Been on tweet ${botState.currentTweetId} for ${Math.round(timeOnCurrentTweet / 1000)}s`);
+    console.log('🔧 Attempting to close modal and move on...');
+
+    // Close the modal
+    const closed = closeCommentModal();
+
+    if (closed) {
+      // Clear current tweet tracking
+      botState.currentTweetId = null;
+      botState.currentTweetStartTime = null;
+      botState.busy = false;
+
+      // Scroll to next content
+      console.log('📜 Scrolling to next tweet...');
+      window.scrollBy({
+        top: window.innerHeight * 0.8,
+        behavior: 'smooth'
+      });
+    }
+  }
+}
+
+// NEW: Start stuck checker when bot starts
+function startStuckChecker() {
+  if (botState.stuckCheckInterval) {
+    clearInterval(botState.stuckCheckInterval);
+  }
+
+  // Check every 30 seconds
+  botState.stuckCheckInterval = setInterval(checkIfStuck, 30000);
+  console.log('🔍 Started stuck detection checker (checks every 30s)');
+}
+
+// NEW: Stop stuck checker when bot stops
+function stopStuckChecker() {
+  if (botState.stuckCheckInterval) {
+    clearInterval(botState.stuckCheckInterval);
+    botState.stuckCheckInterval = null;
+    console.log('🛑 Stopped stuck detection checker');
   }
 }
 
@@ -679,9 +772,13 @@ async function processTweet(article) {
   }
 
   console.log(`🔍 Processing tweet ${tweetId} on ${pageInfo.pageType} page:`, tweetText.substring(0, 50) + '...');
-  
+
   try {
     botState.busy = true;
+    // NEW: Track current tweet for stuck detection
+    botState.currentTweetId = tweetId;
+    botState.currentTweetStartTime = Date.now();
+
     botState.stats.totalAttempts++;
     
     // Ask Claude with enhanced context including API config
@@ -841,6 +938,9 @@ async function processTweet(article) {
     document.dispatchEvent(new KeyboardEvent('keydown', { key: 'Escape' }));
   } finally {
     botState.busy = false;
+    // NEW: Reset tweet tracking after processing
+    botState.currentTweetId = null;
+    botState.currentTweetStartTime = null;
   }
 }
 
@@ -924,13 +1024,15 @@ chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
         break;
       }
       botState.active = true;
+      startStuckChecker(); // NEW: Start monitoring for stuck states
       console.log('🚀 Bot started by user');
       sendResponse({ success: true });
       break;
-      
+
     case 'STOP_BOT':
       botState.active = false;
       botState.busy = false;
+      stopStuckChecker(); // NEW: Stop monitoring when bot stops
       console.log('⏹️ Bot stopped by user');
       sendResponse({ success: true });
       break;
@@ -976,7 +1078,8 @@ chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
         autoRefreshes: 0,
         tweetsScrolled: 0,
         breaksTaken: 0,
-        commentsAbandoned: 0
+        commentsAbandoned: 0,
+        modalsEscaped: 0
       };
       saveSettings();
       sendResponse({ success: true });
