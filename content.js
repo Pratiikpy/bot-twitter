@@ -17,6 +17,9 @@ let botState = {
   currentTweetId: null, // Currently processing tweet ID
   currentTweetStartTime: null, // When we started processing this tweet
   stuckCheckInterval: null, // Interval for checking if stuck
+  // NEW: Recovery mode after getting unstuck
+  recoveryMode: false, // If true, bot operates more cautiously
+  recoveryModeUntil: null, // Timestamp when recovery mode ends
   stats: {
     commentsPosted: 0,
     tweetsLiked: 0,
@@ -160,8 +163,11 @@ function simulateMouseMovement() {
   }
 }
 
-// NEW: Check if bot is stuck and needs refresh
+// DISABLED: Old auto-refresh function (replaced with X button close)
 function checkIfStuckAndRefresh() {
+  // This function is disabled - we now use closeCommentModal() instead
+  return;
+
   if (!botState.settings.enableAutoRefresh || !botState.active) return;
 
   const now = Date.now();
@@ -352,7 +358,7 @@ function checkIfStuck() {
     console.log(`⚠️ STUCK DETECTED! Been on tweet ${botState.currentTweetId} for ${Math.round(timeOnCurrentTweet / 1000)}s`);
     console.log('🔧 Attempting to close modal and move on...');
 
-    // Close the modal
+    // Close the modal by clicking X button
     const closed = closeCommentModal();
 
     if (closed) {
@@ -361,12 +367,29 @@ function checkIfStuck() {
       botState.currentTweetStartTime = null;
       botState.busy = false;
 
+      // NEW: Enable recovery mode for 20 minutes
+      botState.recoveryMode = true;
+      botState.recoveryModeUntil = now + (20 * 60 * 1000); // 20 minutes from now
+      console.log('🐌 RECOVERY MODE ENABLED: Bot will take it slow for 20 minutes...');
+
       // Scroll to next content
       console.log('📜 Scrolling to next tweet...');
       window.scrollBy({
         top: window.innerHeight * 0.8,
         behavior: 'smooth'
       });
+    }
+  }
+}
+
+// NEW: Check if recovery mode should be disabled
+function checkRecoveryMode() {
+  if (botState.recoveryMode && botState.recoveryModeUntil) {
+    const now = Date.now();
+    if (now > botState.recoveryModeUntil) {
+      botState.recoveryMode = false;
+      botState.recoveryModeUntil = null;
+      console.log('✅ RECOVERY MODE ENDED: Bot resuming normal speed');
     }
   }
 }
@@ -689,6 +712,24 @@ function getReplyButton() {
 // ENHANCED: Human-like processTweet function with all realistic behaviors
 async function processTweet(article) {
   if (!botState.active || botState.busy) return;
+
+  // NEW: Check if recovery mode should end
+  checkRecoveryMode();
+
+  // NEW: If in recovery mode, add extra delay and skip more tweets
+  if (botState.recoveryMode) {
+    const now = Date.now();
+    const timeRemaining = Math.round((botState.recoveryModeUntil - now) / 60000);
+
+    // Skip 80% of tweets during recovery mode
+    if (Math.random() < 0.8) {
+      return;
+    }
+
+    // Add extra delay during recovery mode
+    console.log(`🐌 Recovery Mode: ${timeRemaining} minutes remaining, taking it slow...`);
+    await sleep(5000 + Math.random() * 5000); // Extra 5-10 second delay
+  }
 
   // NEW: Update mood periodically
   updateSessionMood();
@@ -1113,11 +1154,6 @@ async function initialize() {
   
   // ENHANCED: More frequent auto-scroll for faster browsing
   setInterval(autoScroll, 8000); // Reduced from 12000ms - scroll every 8 seconds
-
-  // NEW: Check for stuck bot and auto-refresh every 30 seconds
-  setInterval(() => {
-    checkIfStuckAndRefresh();
-  }, 30000); // Check every 30 seconds
 
   // NEW: Random mouse movements throughout the session
   setInterval(() => {
